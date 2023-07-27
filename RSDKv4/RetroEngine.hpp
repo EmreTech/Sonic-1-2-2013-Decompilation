@@ -75,6 +75,7 @@ typedef unsigned int uint;
 #elif defined __SWITCH__
 #define RETRO_PLATFORM   (RETRO_SWITCH)
 #define RETRO_DEVICETYPE (RETRO_STANDARD)
+#undef RETRO_USE_NETWORKING  // This is a pain to deal with and I'll leave it to someone else
 #elif defined __ANDROID__
 #define RETRO_PLATFORM   (RETRO_ANDROID)
 #define RETRO_DEVICETYPE (RETRO_MOBILE)
@@ -203,6 +204,9 @@ typedef unsigned int uint;
 #define RETRO_GAMEPLATFORMID (RETRO_WIN)
 #elif RETRO_PLATFORM == RETRO_UWP
 #define RETRO_GAMEPLATFORMID (UAP_GetRetroGamePlatformId())
+#elif RETRO_PLATFORM == RETRO_SWITCH
+// This may or may not break rev00 scripts on Switch
+#define RETRO_GAMEPLATFORMID (RETRO_PS3)
 #else
 #error Unspecified RETRO_GAMEPLATFORMID
 #endif

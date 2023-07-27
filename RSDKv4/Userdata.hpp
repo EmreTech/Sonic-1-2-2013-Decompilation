@@ -1,8 +1,6 @@
 #ifndef USERDATA_H
 #define USERDATA_H
 
-#include "Networking.hpp"
-
 #define GLOBALVAR_COUNT (0x100)
 
 #define ACHIEVEMENT_COUNT (0x40)
@@ -70,6 +68,14 @@ struct LeaderboardEntry {
     int score;
 };
 
+#ifndef NETWORKING_H
+#define PACKET_SIZE 0x1000
+
+struct MultiplayerData {
+    int type;
+    int data[(PACKET_SIZE - 16) / sizeof(int) - 1];
+};
+#endif
 
 extern void *nativeFunction[NATIIVEFUNCTION_COUNT];
 extern int nativeFunctionCount;

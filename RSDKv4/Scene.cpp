@@ -336,7 +336,7 @@ void ProcessStage(void)
             DrawStageGFX();
             break;
 
-#if !RETRO_REV00
+#if !RETRO_REV00 && RETRO_USE_NETWORKING
         case STAGEMODE_2P:
             drawStageGFXHQ = false;
             if (fadeMode > 0)
