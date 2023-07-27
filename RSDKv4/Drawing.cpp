@@ -81,11 +81,12 @@ int InitRenderDevice()
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 #endif
 #endif
-#if RETRO_DEVICETYPE == RETRO_MOBILE
+
+#if RETRO_DEVICETYPE == RETRO_MOBILE || RETRO_PLATFORM == RETRO_SWITCH
     Engine.startFullScreen = true;
 
     SDL_DisplayMode dm;
-    SDL_GetDesktopDisplayMode(0, &dm);
+    SDL_GetCurrentDisplayMode(0, &dm);
 
     bool landscape = dm.h < dm.w;
     int h          = landscape ? dm.w : dm.h;
@@ -98,11 +99,21 @@ int InitRenderDevice()
     if (SCREEN_XSIZE >= 500)
         SCREEN_XSIZE = 500;
 #endif
+    int winX, winY;
+#if RETRO_PLATFORM == RETRO_SWITCH
+    winX = 1920;
+    winY = 1080;
+    flags |= SDL_WINDOW_FULLSCREEN;
+#else
+    winX       = SCREEN_XSIZE * Engine.windowScale;
+    winX       = SCREEN_YSIZE * Engine.windowScale;
+#endif
 
     SCREEN_CENTERX = SCREEN_XSIZE / 2;
-    Engine.window  = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_XSIZE * Engine.windowScale,
-                                     SCREEN_YSIZE * Engine.windowScale, SDL_WINDOW_ALLOW_HIGHDPI | flags);
-
+    if (windowCreated == false) {
+        Engine.window = SDL_CreateWindow(gameTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, winX, winY, SDL_WINDOW_ALLOW_HIGHDPI | flags);
+        windowCreated = true;
+    }
     if (!Engine.window) {
         PrintLog("ERROR: failed to create window!");
         return 0;
@@ -205,7 +216,10 @@ int InitRenderDevice()
 
     SDL_GL_SetSwapInterval(Engine.vsync ? 1 : 0);
 
-#if RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
+#if RETRO_PLATFORM == RETRO_SWITCH
+    // Should probably add error
+    gladLoadGL();
+#elif RETRO_PLATFORM != RETRO_ANDROID && RETRO_PLATFORM != RETRO_OSX
     GLenum err = glewInit();
     if (err != GLEW_OK && err != GLEW_ERROR_NO_GLX_DISPLAY) {
         PrintLog("glew init error:");
@@ -299,6 +313,7 @@ void FlipScreen()
 {
 #if !RETRO_USE_ORIGINAL_CODE
     float dimAmount = 1.0;
+    #if RETRO_PLATFORM != RETRO_SWITCH //switch doesn't need this it's builtin
     if ((!Engine.masterPaused || Engine.frameStep) && !drawStageGFXHQ) {
         if (Engine.dimTimer < Engine.dimLimit) {
             if (Engine.dimPercent < 1.0) {
@@ -310,9 +325,9 @@ void FlipScreen()
         else if (Engine.dimPercent > 0.25 && Engine.dimLimit >= 0) {
             Engine.dimPercent *= 0.9;
         }
-
         dimAmount = Engine.dimMax * Engine.dimPercent;
     }
+    #endif //! RETRO_PLATFORM != RETRO_SWITCH
 
 #if RETRO_SOFTWARE_RENDER && !RETRO_USING_OPENGL
 #if RETRO_USING_SDL2
