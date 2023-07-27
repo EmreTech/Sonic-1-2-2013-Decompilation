@@ -1,0 +1,5 @@
+Install the following packages via `dkp-pacman` or `pacman` if you're using an Arch-based Linux distro:
+- switch-glad
+- switch-sdl2
+- switch-glfw
+- switch-libvorbis (automatically installs libogg for you)
